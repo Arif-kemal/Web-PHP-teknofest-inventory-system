@@ -7,8 +7,9 @@ require_once '../includes/header.php';
 
 // 2. Donanımları veritabanından çekme işlemi (JOIN ile zimmetli kişinin adını alıyoruz)
 try {
+    // SİHİRLİ DOKUNUŞ 1: SQL sorgusuna 'h.assigned_date' sütunu da eklendi
     $stmt = $db->query("
-        SELECT h.id, h.name, h.type, h.status, h.serial_number, h.assigned_at, h.notes, 
+        SELECT h.id, h.name, h.type, h.status, h.serial_number, h.assigned_at, h.assigned_date, h.notes, 
                u.full_name AS assigned_user 
         FROM hardware h
         LEFT JOIN users u ON h.assigned_to = u.id
@@ -78,12 +79,22 @@ try {
                                     <span class="text-muted">-</span>
                                 <?php endif; ?>
                             </td>
+                            
                             <td>
-                                <?php if (!empty($row['assigned_at'])): ?>
-                                    <small class="text-muted"><?= date('d.m.Y H:i', strtotime($row['assigned_at'])) ?></small>
-                                <?php else: ?>
-                                    <span class="text-muted">-</span>
-                                <?php endif; ?>
+                                <?php 
+                                    if ($row['status'] === 'Zimmetli') {
+                                        // Önce yeni tarihe bak, boşsa eski tarihe bak
+                                        $zaman = !empty($row['assigned_date']) ? $row['assigned_date'] : $row['assigned_at'];
+                                        
+                                        if (!empty($zaman)) {
+                                            echo '<small class="text-muted">' . date('d.m.Y H:i', strtotime($zaman)) . '</small>';
+                                        } else {
+                                            echo '<span class="text-muted">-</span>';
+                                        }
+                                    } else {
+                                        echo '<span class="text-muted">-</span>';
+                                    }
+                                ?>
                             </td>
                             
                             <td class="text-end pe-4">

@@ -7,30 +7,48 @@ require_once '../includes/header.php';
 $error = '';
 $success = '';
 
+// 1. Takım üyelerini "Zimmetli Kişi" açılır menüsü için veritabanından çek
+$stmtUsers = $db->query("SELECT id, full_name FROM users ORDER BY full_name ASC");
+$usersList = $stmtUsers->fetchAll(PDO::FETCH_ASSOC);
+
 // Form gönderildiyse (POST isteği)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
-    $type = $_POST['type'] ?? 'Diğer';
+    $category = $_POST['category'] ?? 'Diğer'; // Veritabanındaki "category" sütunu ile uyumlu yapıldı
     $status = $_POST['status'] ?? 'Müsait';
     $serial_number = trim($_POST['serial_number'] ?? '');
     $notes = trim($_POST['notes'] ?? '');
+
+    // 2. Zimmet Kişisi ve Tarihi Mantığı
+    $assigned_to = !empty($_POST['assigned_to']) ? (int)$_POST['assigned_to'] : null;
+    
+    // Eğer durum Zimmetli değilse, zimmet bilgisini zorla sıfırla
+    if ($status !== 'Zimmetli') {
+        $assigned_to = null;
+        $assigned_date = null;
+    } else {
+        // Zimmetliyse ve kişi seçildiyse bugünün tarihini (Türkiye saatiyle) at
+        $assigned_date = $assigned_to ? date('Y-m-d H:i:s') : null;
+    }
 
     // Sadece donanım adı zorunlu olsun
     if ($name === '') {
         $error = 'Lütfen donanım adını giriniz.';
     } else {
-        // SQL Injection'a karşı PDO prepare ile güvenli ekleme
+        // SQL Sorgusuna category, assigned_to ve assigned_date eklendi
         $stmt = $db->prepare('
-            INSERT INTO hardware (name, type, status, serial_number, notes) 
-            VALUES (:name, :type, :status, :serial_number, :notes)
+            INSERT INTO hardware (name, category, status, serial_number, assigned_to, assigned_date, notes) 
+            VALUES (:name, :category, :status, :serial_number, :assigned_to, :assigned_date, :notes)
         ');
         
         try {
             $stmt->execute([
                 ':name' => $name,
-                ':type' => $type,
+                ':category' => $category,
                 ':status' => $status,
                 ':serial_number' => $serial_number,
+                ':assigned_to' => $assigned_to,
+                ':assigned_date' => $assigned_date,
                 ':notes' => $notes
             ]);
             $success = 'Donanım envantere başarıyla eklendi!';
@@ -76,9 +94,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="type" class="form-label text-muted fw-bold">Kategori</label>
-                    <select class="form-select" id="type" name="type">
+                <div class="col-md-4">
+                    <label for="category" class="form-label text-muted fw-bold">Kategori</label>
+                    <select class="form-select" id="category" name="category">
                         <option value="Geliştirme Kartı">Geliştirme Kartı</option>
                         <option value="Kamera">Kamera</option>
                         <option value="Sensör">Sensör</option>
@@ -86,13 +104,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <option value="Diğer" selected>Diğer</option>
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="status" class="form-label text-muted fw-bold">Başlangıç Durumu</label>
                     <select class="form-select" id="status" name="status">
                         <option value="Müsait" selected>Müsait</option>
                         <option value="Zimmetli">Zimmetli</option>
                         <option value="Bakımda">Bakımda</option>
                         <option value="Arızalı">Arızalı</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted fw-bold">Zimmetli Kişi <small class="text-info">(Zimmetliyse)</small></label>
+                    <select class="form-select" name="assigned_to">
+                        <option value="">-- Kişi Seçin --</option>
+                        <?php foreach ($usersList as $user): ?>
+                            <option value="<?= $user['id'] ?>">
+                                <?= htmlspecialchars($user['full_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
             </div>

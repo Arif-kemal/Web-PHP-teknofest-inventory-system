@@ -8,7 +8,7 @@ $error = '';
 $success = '';
 $hardware = null;
 
-// 1. Adım: URL'den gelen ID'ye göre mevcut donanım bilgilerini getir (Formu doldurmak için)
+// 1. URL'den ID'yi al ve donanım bilgilerini çek
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $id = (int)$_GET['id'];
     $stmt = $db->prepare("SELECT * FROM hardware WHERE id = :id");
@@ -16,45 +16,67 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $hardware = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$hardware) {
-        die("Böyle bir donanım bulunamadı.");
+        die("<div class='container mt-5'><div class='alert alert-danger'>Donanım bulunamadı.</div></div>");
     }
 } else {
     header('Location: hardware.php');
     exit;
 }
 
-// 2. Adım: Form gönderildiyse veritabanındaki bilgileri GÜNCELLE (UPDATE)
+// 2. Takım üyelerini açılır menü için veritabanından çek
+$stmtUsers = $db->query("SELECT id, full_name FROM users ORDER BY full_name ASC");
+$usersList = $stmtUsers->fetchAll(PDO::FETCH_ASSOC);
+
+// 3. Form gönderildiğinde veritabanını güncelle
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
-    $type = $_POST['type'] ?? 'Diğer';
+    $category = trim($_POST['category'] ?? '');
     $status = $_POST['status'] ?? 'Müsait';
     $notes = trim($_POST['notes'] ?? '');
+    
+    // Zimmetli kişi seçilmişse ID'sini al, seçilmemişse NULL yap
+    $assigned_to = !empty($_POST['assigned_to']) ? (int)$_POST['assigned_to'] : null;
+
+    // Eğer durum Müsait veya Bakımda ise, zimmeti ve tarihi otomatik sıfırla
+    if ($status !== 'Zimmetli') {
+        $assigned_to = null;
+        $assigned_date = null;
+    } else {
+        // Zimmetli seçilmişse ve kişi atanmışsa şu anki tarihi ver
+        $assigned_date = $assigned_to ? date('Y-m-d H:i:s') : null;
+    }
 
     if ($name === '') {
-        $error = 'Donanım adı boş bırakılamaz.';
+        $error = 'Donanım Adı boş bırakılamaz.';
     } else {
-        $stmtUpdate = $db->prepare('
-            UPDATE hardware 
-            SET name = :name, type = :type, status = :status, notes = :notes 
-            WHERE id = :id
-        ');
-        
         try {
+            $stmtUpdate = $db->prepare('
+                UPDATE hardware 
+                SET name = :name, category = :category, status = :status, 
+                    assigned_to = :assigned_to, assigned_date = :assigned_date, notes = :notes 
+                WHERE id = :id
+            ');
+            
             $stmtUpdate->execute([
                 ':name' => $name,
-                ':type' => $type,
+                ':category' => $category,
                 ':status' => $status,
+                ':assigned_to' => $assigned_to,
+                ':assigned_date' => $assigned_date,
                 ':notes' => $notes,
                 ':id' => $id
             ]);
-            $success = 'Donanım bilgileri başarıyla güncellendi!';
-            // Formu güncel verilerle tekrar doldurmak için veriyi yeniden çekiyoruz
+            $success = 'Donanım başarıyla güncellendi!';
+            
+            // Yeni verileri anında ekranda görebilmek için diziyi güncelliyoruz
             $hardware['name'] = $name;
-            $hardware['type'] = $type;
+            $hardware['category'] = $category;
             $hardware['status'] = $status;
+            $hardware['assigned_to'] = $assigned_to;
             $hardware['notes'] = $notes;
+
         } catch (PDOException $e) {
-            $error = 'Güncelleme sırasında hata oluştu: ' . $e->getMessage();
+            $error = 'GERÇEK HATA: ' . $e->getMessage();
         }
     }
 }
@@ -85,35 +107,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form action="edit_hardware.php?id=<?= $id ?>" method="POST">
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label for="name" class="form-label text-muted fw-bold">Donanım Adı</label>
-                    <input type="text" class="form-control" id="name" name="name" value="<?= htmlspecialchars($hardware['name']) ?>" required>
+                    <label class="form-label text-muted fw-bold">Donanım Adı *</label>
+                    <input type="text" class="form-control" name="name" value="<?= htmlspecialchars($hardware['name']) ?>" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="type" class="form-label text-muted fw-bold">Kategori</label>
-                    <select class="form-select" id="type" name="type">
-                        <option value="Geliştirme Kartı" <?= $hardware['type'] == 'Geliştirme Kartı' ? 'selected' : '' ?>>Geliştirme Kartı</option>
-                        <option value="Kamera" <?= $hardware['type'] == 'Kamera' ? 'selected' : '' ?>>Kamera</option>
-                        <option value="Sensör" <?= $hardware['type'] == 'Sensör' ? 'selected' : '' ?>>Sensör</option>
-                        <option value="Diğer" <?= $hardware['type'] == 'Diğer' ? 'selected' : '' ?>>Diğer</option>
+                    <label class="form-label text-muted fw-bold">Kategori</label>
+                    <select class="form-select" name="category">
+                        <option value="Geliştirme Kartı" <?= $hardware['category'] == 'Geliştirme Kartı' ? 'selected' : '' ?>>Geliştirme Kartı</option>
+                        <option value="Sensör" <?= $hardware['category'] == 'Sensör' ? 'selected' : '' ?>>Sensör</option>
+                        <option value="Kamera" <?= $hardware['category'] == 'Kamera' ? 'selected' : '' ?>>Kamera</option>
+                        <option value="Motor / Sürücü" <?= $hardware['category'] == 'Motor / Sürücü' ? 'selected' : '' ?>>Motor / Sürücü</option>
+                        <option value="GPU Sunucu" <?= $hardware['category'] == 'GPU Sunucu' ? 'selected' : '' ?>>GPU Sunucu</option>
+                        <option value="Diğer" <?= $hardware['category'] == 'Diğer' ? 'selected' : '' ?>>Diğer</option>
                     </select>
                 </div>
             </div>
 
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label for="status" class="form-label text-muted fw-bold">Durum</label>
-                    <select class="form-select" id="status" name="status">
+                    <label class="form-label text-muted fw-bold">Durum</label>
+                    <select class="form-select" name="status" id="statusSelect">
                         <option value="Müsait" <?= $hardware['status'] == 'Müsait' ? 'selected' : '' ?>>Müsait</option>
                         <option value="Zimmetli" <?= $hardware['status'] == 'Zimmetli' ? 'selected' : '' ?>>Zimmetli</option>
                         <option value="Bakımda" <?= $hardware['status'] == 'Bakımda' ? 'selected' : '' ?>>Bakımda</option>
-                        <option value="Arızalı" <?= $hardware['status'] == 'Arızalı' ? 'selected' : '' ?>>Arızalı</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label text-muted fw-bold">Zimmetli Kişi <small class="text-info">(Sadece Zimmetliyse)</small></label>
+                    <select class="form-select" name="assigned_to">
+                        <option value="">-- Kişi Seçin --</option>
+                        <?php foreach ($usersList as $user): ?>
+                            <option value="<?= $user['id'] ?>" <?= ($hardware['assigned_to'] == $user['id']) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($user['full_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
             </div>
 
             <div class="mb-4">
-                <label for="notes" class="form-label text-muted fw-bold">Notlar</label>
-                <textarea class="form-control" id="notes" name="notes" rows="3"><?= htmlspecialchars($hardware['notes']) ?></textarea>
+                <label class="form-label text-muted fw-bold">Notlar</label>
+                <textarea class="form-control" name="notes" rows="3"><?= htmlspecialchars($hardware['notes'] ?? '') ?></textarea>
             </div>
 
             <button type="submit" class="btn btn-primary px-4 shadow-sm">
