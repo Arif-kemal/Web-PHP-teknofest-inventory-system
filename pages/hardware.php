@@ -85,13 +85,20 @@ try {
                                     <span class="text-muted">-</span>
                                 <?php endif; ?>
                             </td>
+                            
                             <td class="text-end pe-4">
-                                <button class="btn btn-sm btn-outline-success" title="Zimmet Ata/Kaldır"><i class="bi bi-arrow-left-right"></i></button>
-                                <button class="btn btn-sm btn-outline-primary" title="Düzenle"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-success" title="Zimmet Ata/Kaldır">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                </button>
+                                
+                                <a href="edit_hardware.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-primary" title="Düzenle">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                
                                 <a href="delete_hardware.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-danger" title="Sil" onclick="return confirm('Bu donanımı envanterden kalıcı olarak silmek istediğinize emin misiniz?');">
                                     <i class="bi bi-trash"></i>
                                 </a>
-                                </td>
+                            </td>
                         </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
