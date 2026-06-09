@@ -11,6 +11,8 @@
 
 [🎬 Demo Videosu](#-demo) · [📸 Ekran Görüntüleri](#-ekran-görüntüleri) · [🚀 Kurulum](#-kurulum) · [📂 Mimari](#-proje-mimarisi)
 
+> Geliştirici: **Arif Kemal Şeremet** — arifkemalseremet@gmail.com
+
 </div>
 
 ---
@@ -146,36 +148,37 @@ users ──┬──< models
 
 ```
 proje/
-├── 📁 assets/
-│   ├── css/style.css        ← Özel stiller, Glassmorphism, Sakura animasyonu
-│   └── js/script.js         ← Silme onayı, flash mesaj, auto-submit
-│
 ├── 📁 config/
-│   └── db.php               ← PDO bağlantısı (hosting'e alırken güncelle)
+│   └── db.php                  ← PDO bağlantısı (hosting'e alırken güncelle)
 │
 ├── 📁 includes/
-│   ├── header.php           ← Bootstrap navbar, Bootstrap CDN linkleri
-│   ├── footer.php           ← Kapanış etiketleri, Bootstrap JS
-│   ├── auth.php             ← Session fonksiyonları (requireLogin, isAdmin...)
-│   └── functions.php        ← XSS koruması (e()), flash mesaj, badge helper'ları
-│
-├── 📁 classes/              ← OOP gösterimi
-│   ├── Database.php         ← Singleton PDO wrapper
-│   └── User.php             ← Kayıt, giriş doğrulama, kullanıcı sorgulama
+│   ├── header.php              ← Bootstrap navbar, CDN linkleri
+│   ├── footer.php              ← Kapanış etiketleri, Bootstrap JS
+│   └── auth.php               ← Session fonksiyonları (requireLogin, isAdmin...)
 │
 ├── 📁 pages/
-│   ├── dashboard.php        ← İstatistik paneli
-│   ├── models.php           ← AI model CRUD
-│   ├── datasets.php         ← Veri seti CRUD
-│   └── hardware.php         ← Donanım CRUD + zimmetleme
+│   ├── dashboard.php           ← İstatistik paneli
+│   ├── hardware.php            ← Donanım listesi
+│   ├── add_hardware.php        ← Donanım ekleme formu
+│   ├── edit_hardware.php       ← Donanım düzenleme
+│   ├── models.php              ← AI model listesi
+│   ├── add_model.php           ← Model ekleme
+│   ├── datasets.php            ← Veri seti listesi
+│   └── add_dataset.php         ← Veri seti ekleme
 │
-├── index.php                ← Bekçi — girişe göre yönlendirme
-├── login.php                ← Giriş formu
-├── register.php             ← Kayıt formu
-├── logout.php               ← Oturumu kapat
-├── schema.sql               ← Veritabanı şeması (bunu içe aktar)
-├── AI.md                    ← Yapay zeka yardım günlüğü
-└── README.md                ← Bu dosya
+├── 📁 images/                  ← README ekran görüntüleri
+│   ├── dashboard.png
+│   ├── hardware.png
+│   ├── models.png
+│   └── login.png
+│
+├── index.php                   ← Bekçi — girişe göre yönlendirme
+├── login.php                   ← Giriş formu
+├── register.php                ← Kayıt formu
+├── logout.php                  ← Oturumu kapat
+├── database.sql                ← phpMyAdmin'den alınan veritabanı yedeği
+├── AI.md                       ← Yapay zeka yardım günlüğü
+└── README.md                   ← Bu dosya
 ```
 
 </details>
@@ -193,21 +196,21 @@ proje/
 
 **1. Repoyu klonla**
 ```bash
-git clone https://github.com/KULLANICI_ADIN/takimpanel.git
-cd takimpanel
+git clone https://github.com/Arif-kemal/Web-PHP-teknofest-inventory-system.git
+cd Web-PHP-teknofest-inventory-system
 ```
 
-**2. Veritabanını oluştur**
+**2. Veritabanını oluştur ve içe aktar**
 
-phpMyAdmin veya MySQL CLI kullanarak `schema.sql` dosyasını içe aktar:
+phpMyAdmin veya MySQL CLI kullanarak `database.sql` dosyasını içe aktar:
 
 ```bash
 # CLI ile:
-mysql -u root -p < schema.sql
+mysql -u root -p < database.sql
 
 # phpMyAdmin ile:
 # Sol panel → Yeni Veritabanı → "teknofest_db" → Oluştur
-# Üst menü → İçe Aktar → schema.sql dosyasını seç → Git
+# Üst menü → İçe Aktar → database.sql dosyasını seç → Git
 ```
 
 **3. Veritabanı bağlantısını yapılandır**
@@ -221,42 +224,42 @@ define('DB_USER', 'root');        // ← Kendi kullanıcı adın
 define('DB_PASS', '');            // ← Kendi şifren
 ```
 
-> ⚠️ **Hosting'e alırken:** Hosting kontrol panelinden aldığın veritabanı adı, kullanıcı adı ve şifreyi buraya gir.
+> ⚠️ **Hosting'e alırken:** Hosting kontrol panelinden aldığın veritabanı adı, kullanıcı adı ve şifreyi buraya gir. `database.sql` içindeki bağlantı bilgilerini de kontrol et.
 
 **4. Projeyi çalıştır**
 
 ```
-# XAMPP: htdocs/takimpanel/ klasörüne koy
+# XAMPP kullanıyorsan:
+# Klasörü htdocs/takimpanel/ içine koy
 # Tarayıcıda aç:
 http://localhost/takimpanel/
 ```
 
-**5. İlk giriş**
+**5. Kayıt ol ve giriş yap**
 
-`schema.sql` bir test admin kullanıcısı oluşturur:
-
-```
-E-posta : admin@teknofest.local
-Şifre   : Admin1234
-```
-
-> 🔒 Giriş yaptıktan sonra şifreyi değiştirmeyi unutma!
+Ana sayfada `register.php` ile hesap oluştur, ardından giriş yap.
 
 ---
 
 ## 🎬 Demo
 
-▶️ **[VİDEO LİNKİ BURAYA]** *(YouTube veya açık erişimli Google Drive)*
+▶️ **[https://youtu.be/pTcWY_yyfKk](https://youtu.be/pTcWY_yyfKk)**
 
 ---
 
 ## 📸 Ekran Görüntüleri
 
 ### 🏠 Dashboard
-![Dashboard](![EKRAN GÖRÜNTÜSÜ BURAYA])
+![Dashboard](images/dashboard.png)
+
+### 🔐 Giriş Sayfası
+![Login](images/login.png)
 
 ### 🛠️ Donanım Yönetimi
-![Donanım](![EKRAN GÖRÜNTÜSÜ BURAYA])
+![Donanım](images/hardware.png)
+
+### 🤖 AI Model Takibi
+![Modeller](images/models.png)
 
 ---
 
@@ -264,11 +267,23 @@ E-posta : admin@teknofest.local
 
 | Önlem | Uygulama |
 |-------|----------|
-| Şifre güvenliği | `password_hash()` / `password_verify()` (bcrypt, cost=12) |
+| Şifre güvenliği | `password_hash()` / `password_verify()` (bcrypt) |
 | Oturum yönetimi | PHP `$_SESSION` — düz çerez yok |
 | Session fixation | Giriş sonrası `session_regenerate_id(true)` |
 | SQL Injection | PDO Prepared Statements — her sorguda parametreli |
-| XSS Koruması | Tüm çıktılarda `htmlspecialchars()` (`e()` fonksiyonu) |
+| XSS Koruması | Tüm çıktılarda `htmlspecialchars()` |
+
+---
+
+## 🛠️ Kullanılan Teknolojiler
+
+| Katman | Teknoloji |
+|--------|-----------|
+| Backend | PHP 8+ (Vanilla — framework yok, prosedürel PDO) |
+| Veritabanı | MySQL 8 / PDO Prepared Statements |
+| Frontend | HTML5, CSS3, Bootstrap 5.3 |
+| İkonlar | Bootstrap Icons 1.11 |
+| Güvenlik | bcrypt, PHP Sessions, Prepared Statements |
 
 ---
 
@@ -277,24 +292,11 @@ E-posta : admin@teknofest.local
 Bu projeyi sadece bizim takımımız değil; **otonom araç, görüntü işleme veya IoT** üzerine çalışan tüm ekipler kullanabilir:
 
 - 🏎️ Otonom araç takımları → model ve sensör envanteri
-- 🤖 Robotik takımları → geliştirme kartı zimmet takibi  
+- 🤖 Robotik takımları → geliştirme kartı zimmet takibi
 - 🌾 Tarım teknolojisi takımları → drone ve kamera yönetimi
 - 🎓 Üniversite yapay zeka kulüpleri → veri seti ve model kütüphanesi
 
-Repoyu **fork'la**, `config/db.php` ve `schema.sql`'i düzenle, 5 dakikada kendi sistemin hazır.
-
----
-
-## 🛠️ Kullanılan Teknolojiler
-
-| Katman | Teknoloji |
-|--------|-----------|
-| Backend | PHP 8+ (Vanilla — framework yok) |
-| Veritabanı | MySQL 8 / PDO |
-| Frontend | HTML5, CSS3, Bootstrap 5.3 |
-| İkonlar | Bootstrap Icons 1.11 |
-| OOP | Singleton `Database`, `User` sınıfları |
-| Güvenlik | bcrypt, Sessions, Prepared Statements |
+Repoyu **fork'la**, `config/db.php` ayarla, `database.sql`'i içe aktar — 5 dakikada kendi sistemin hazır.
 
 ---
 
@@ -312,7 +314,7 @@ MIT License — Dilediğin gibi kullan, fork'la, geliştir.
 *Proje gereksinimleri doğrultusunda; kullanıcı kaydı, oturum yönetimi, CRUD operasyonları,*  
 *hazır CSS kütüphanesi kullanımı ve güvenlik standartları eksiksiz uygulanmıştır.*  
 *Backend tarafında herhangi bir harici PHP kütüphanesi/framework kullanılmamış;*  
-*tüm kodlar **Vanilla PHP 8+** ile özgün olarak yazılmıştır.*
+*tüm kodlar doğrudan **PDO** ile güvenli **Vanilla PHP 8+** olarak özgün biçimde yazılmıştır.*
 
 ---
 
