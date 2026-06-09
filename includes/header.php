@@ -12,22 +12,94 @@ require_login(); // Sayfaya sadece giriş yapanlar girebilir
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <style>
+        /* 1. FOOTER'I EN ALTTA SABİTLEME (FLEXBOX AYARI) */
         body {
-            background-color: #f8f9fa; /* Açık gri arkaplan */
+            background-image: 
+                linear-gradient(135deg, rgba(224, 247, 250, 0.85) 0%, rgba(255, 255, 255, 0.95) 100%),
+                url('https://images.unsplash.com/photo-1522383225653-ed111181a951?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            
+            /* Footer'ı aşağıya itmek için Flexbox motorunu açıyoruz */
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            min-height: 100vh; /* Ekranın tamamını kaplamasını sağla */
+            margin: 0;
+            overflow-x: hidden; /* Sağa kaymayı engelle (yapraklar için) */
         }
+
+        /* Ana içerik konteynerine (main) 'flex-grow: 1' vererek footer'ı dibe iteriz. 
+        Eğer HTML'inde 'main' etiketi yoksa, <div class="container"> gibi en dıştaki div'e bu sınıfı ekle. */
         main {
-            flex: 1; /* Footer'ı her zaman en aşağı itmek için */
+            flex-grow: 1;
+            padding-bottom: 2rem; /* Footer'la içerik arasına boşluk */
         }
-        .navbar {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+        /* Mevcut tasarımın diğer kısımları */
+        .bg-dark { background-color: #00838f !important; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .card { background-color: rgba(255, 255, 255, 0.85) !important; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .table-dark { background-color: #006064; }
+        
+        footer {
+            background-color: rgba(0, 131, 143, 0.9) !important; /* Turkuaz tonu */
+            backdrop-filter: blur(3px);
+            color: white;
+            padding: 1rem 0;
+            margin-top: auto; /* Sayfa kısa olsa bile dibe yapışmasını sağlayan sihir */
+        }
+
+        /* 2. UÇUŞAN SAKURA YAPRAKLARI ANİMASYONU */
+        .sakura-yapraklari {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; /* İçeriğin arkasında kalsınlar */
+            pointer-events: none; /* Tıklamayı engelle */
+        }
+
+        .sakura-yapraklari span {
+            position: absolute; display: block;
+            width: 15px; height: 15px; /* Yaprak boyutu */
+            background: #ffc0cb; /* Pembe renk */
+            border-radius: 100% 0% 100% 0%; /* Yaprak şekli */
+            opacity: 0;
+            animation: dökülen_yapraklar 15s linear infinite; /* Animasyonu bağla */
+        }
+
+        /* 10 yaprağın her birine farklı başlama süresi, konum ve hız verelim (doğallık için) */
+        .sakura-yapraklari span:nth-child(1)  { left: 10%; animation-delay: 0s;  animation-duration: 12s; }
+        .sakura-yapraklari span:nth-child(2)  { left: 30%; animation-delay: 2s;  animation-duration: 18s; }
+        .sakura-yapraklari span:nth-child(3)  { left: 50%; animation-delay: 4s;  animation-duration: 14s; }
+        .sakura-yapraklari span:nth-child(4)  { left: 70%; animation-delay: 6s;  animation-duration: 16s; }
+        .sakura-yapraklari span:nth-child(5)  { left: 90%; animation-delay: 8s;  animation-duration: 20s; }
+        .sakura-yapraklari span:nth-child(6)  { left: 20%; animation-delay: 1s;  animation-duration: 13s; }
+        .sakura-yapraklari span:nth-child(7)  { left: 40%; animation-delay: 3s;  animation-duration: 17s; }
+        .sakura-yapraklari span:nth-child(8)  { left: 60%; animation-delay: 5s;  animation-duration: 15s; }
+        .sakura-yapraklari span:nth-child(9)  { left: 80%; animation-delay: 7s;  animation-duration: 19s; }
+        .sakura-yapraklari span:nth-child(10) { left: 95%; animation-delay: 9s;  animation-duration: 11s; }
+
+        /* Animasyon Matematiği: Yukarıdan aşağıya dökülme ve dönme */
+        @keyframes dökülen_yapraklar {
+            0% {
+                opacity: 0;
+                top: -10%; /* Ekranın yukarısından başla */
+                transform: translateX(0) rotate(0deg);
+            }
+            10% { opacity: 1; } /* Belirginleş */
+            90% { opacity: 1; }
+            100% {
+                opacity: 0;
+                top: 100%; /* Ekranın altına kadar dökül */
+                /* Düşerken rüzgarla savruluyormuş gibi sağa/sola kaydır ve döndür */
+                transform: translateX(100px) rotate(720deg); 
+            }
         }
     </style>
 </head>
 <body>
-
+    <div class="sakura-yapraklari">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+    </div>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
             <a class="navbar-brand" href="<?= BASE_URL ?>/pages/dashboard.php">
