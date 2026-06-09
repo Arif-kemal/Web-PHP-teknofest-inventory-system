@@ -1,5 +1,4 @@
 <?php
-// includes/header.php
 require_once __DIR__ . '/auth.php';
 require_login(); // Sayfaya sadece giriş yapanlar girebilir
 ?>

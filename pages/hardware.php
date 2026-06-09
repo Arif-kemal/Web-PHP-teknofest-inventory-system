@@ -1,5 +1,5 @@
 <?php
-// pages/hardware.php
+
 
 // 1. Veritabanı ve İskelet Bağlantıları
 require_once '../config/db.php';

@@ -1,5 +1,5 @@
 <?php
-// pages/delete_hardware.php
+
 
 // 1. Veritabanı ve güvenlik bağlantıları
 require_once '../config/db.php';

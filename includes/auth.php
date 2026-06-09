@@ -1,8 +1,5 @@
 <?php
-/**
- * includes/auth.php
- * Oturum (session) başlatma ve kimlik doğrulama fonksiyonları.
- */
+
 
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
