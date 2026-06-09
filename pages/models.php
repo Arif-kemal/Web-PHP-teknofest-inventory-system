@@ -73,7 +73,9 @@ try {
                             </td>
                             <td><?= htmlspecialchars($row['trainer_name']) ?></td>
                             <td class="text-end pe-4">
-                                <button class="btn btn-sm btn-outline-info" title="İncele"><i class="bi bi-eye"></i></button>
+                                <a href="view_model.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-info" title="İncele">
+                                    <i class="bi bi-eye"></i> İncele
+                                </a>
                             </td>
                         </tr>
                         <?php endforeach; ?>

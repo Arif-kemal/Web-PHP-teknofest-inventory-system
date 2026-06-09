@@ -74,8 +74,13 @@ try {
                             </td>
                             <td><i class="bi bi-person me-1 text-muted"></i><?= htmlspecialchars($row['creator_name']) ?></td>
                             <td class="text-end pe-4">
-                                <button class="btn btn-sm btn-outline-primary" title="Düzenle"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-outline-danger" title="Sil"><i class="bi bi-trash"></i></button>
+                                <a href="edit_dataset.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-primary" title="Düzenle">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                
+                                <a href="delete_dataset.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-danger" title="Sil" onclick="return confirm('Bu veri setini kalıcı olarak silmek istediğinize emin misiniz?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </td>
                         </tr>
                         <?php endforeach; ?>
