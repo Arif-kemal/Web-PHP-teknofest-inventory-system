@@ -13,6 +13,7 @@
 
 > Geliştirici: **Arif Kemal Şeremet** — arifkemalseremet@gmail.com
 
+
 </div>
 
 ---
@@ -233,6 +234,7 @@ define('DB_PASS', '');            // ← Kendi şifren
 # Klasörü htdocs/takimpanel/ içine koy
 # Tarayıcıda aç:
 http://localhost/takimpanel/
+
 ```
 
 **5. Kayıt ol ve giriş yap**
@@ -252,13 +254,13 @@ Ana sayfada `register.php` ile hesap oluştur, ardından giriş yap.
 ### 🏠 Dashboard
 ![Dashboard](images/dashboard.png)
 
-### 🔐 Giriş Sayfası
+### 🔐 Donanım Envanteri
 ![Login](images/login.png)
 
-### 🛠️ Donanım Yönetimi
+### 🛠️ Yolvo modelleri
 ![Donanım](images/hardware.png)
 
-### 🤖 AI Model Takibi
+### 🤖 Veri setleri
 ![Modeller](images/models.png)
 
 ---
